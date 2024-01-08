@@ -1,0 +1,10 @@
+config:
+    policy:
+        validator:
+            owner-group-name:
+                min: 1
+                max: 100
+            size:
+                min: 1
+                max: 100
+
