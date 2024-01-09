@@ -7,34 +7,28 @@
 
 ### Table
 #### Directory
-| Column name | Type  | Description  |
-|:------------|:-----:|:-------------|
-| id          | Long  | id           |
-| pathName    |||
-| owner       ||
-| group       ||
-| permissions ||
-| size        ||
-| created     ||
-| modified    ||
-
-#### Environment
-| Column name      | Type  | Description  |
-|:-----------------|:-----:|:-------------|
-| totalCapacity    |||
-| currentCapacity  |||
+| Column name |          Type           | Description |
+|:------------|:-----------------------:|:------------|
+| id          |         BIGINT          | id          |
+| pathName    | CHARACTER VARYING(4096) | 경로          |
+| owner       | CHARACTER VARYING(255)  | 소유자         |
+| group       | CHARACTER VARYING(255)  | 소유자 그룹      |
+| permissions |  CHARACTER VARYING(9)   | 디렉토리 권한     |
+| size        |         INTEGER         | 사이즈         |
+| created     |      TIMESTAMP(6)       | 생성일         |
+| modified    |      TIMESTAMP(6)       | 수정일         |
 
 ### 디렉토리 추가 API
 > [POST] /directory/create
 
-#### 필수 파라미터
+#### 요청 Body
 - pathName: String
 - owner: String
 - group: String
 - permissions: String
 - size: int
 
-#### 옵션 파라미터
+#### 옵션 쿼리스트링
 - createMissingParent: String > Y/N
 - 사이즈가 부족하다면 맞춰서 생성?
 
@@ -52,11 +46,11 @@
 ### 디렉토리 이름 변경 API
 > [POST] /directory/rename
 
-#### 필수 파라미터
+#### 요청 Body
 - oldPathName: String
 - newName: String
 
-#### 옵션 파라미터
+#### 옵션 쿼리 스트링
 mergeIfDuplicateName: String > Y/N
 
 #### 검증
