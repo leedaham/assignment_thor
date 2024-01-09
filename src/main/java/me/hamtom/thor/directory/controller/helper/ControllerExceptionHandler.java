@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.controller;
+package me.hamtom.thor.directory.controller.helper;
 
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.controller.response.ErrorResult;
