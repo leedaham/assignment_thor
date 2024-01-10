@@ -1,10 +1,10 @@
 package me.hamtom.thor.directory.config;
 
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.controller.response.ErrorResult;
-import me.hamtom.thor.directory.controller.response.FailResult;
-import me.hamtom.thor.directory.controller.response.Result;
-import me.hamtom.thor.directory.exception.PredictableRuntimeException;
+import me.hamtom.thor.directory.domain.common.response.ErrorResult;
+import me.hamtom.thor.directory.domain.common.response.FailResult;
+import me.hamtom.thor.directory.domain.common.response.Result;
+import me.hamtom.thor.directory.domain.common.exception.PredictableRuntimeException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;

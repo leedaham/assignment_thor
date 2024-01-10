@@ -2,10 +2,11 @@ package me.hamtom.thor.directory.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import me.hamtom.thor.directory.dto.DirectoryPathInfoDto;
-import me.hamtom.thor.directory.dto.ParentDirectoriesInfoDto;
-import me.hamtom.thor.directory.entity.Directory;
-import me.hamtom.thor.directory.repository.DirectoryRepository;
+import me.hamtom.thor.directory.domain.common.DirectoryService;
+import me.hamtom.thor.directory.domain.common.directory.dto.DirectoryPathInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
+import me.hamtom.thor.directory.domain.common.directory.repository.DirectoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
