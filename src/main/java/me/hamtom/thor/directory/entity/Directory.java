@@ -9,14 +9,13 @@ import lombok.Setter;
 @Entity
 @Getter @Setter(AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "directory")
 public class Directory extends BaseTime{
 
     @Id @GeneratedValue
     @Column(name = "directory_id")
     private Long id;
 
-    @Column(length = 4096, nullable = false)
+    @Column(length = 4096, nullable = false, unique = true)
     private String pathName;
 
     @Column(nullable = false)
