@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.controller.helper;
+package me.hamtom.thor.directory.config;
 
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.controller.response.ErrorResult;
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ControllerExceptionHandler {
 
+    public static final String FAIL_MSG = "요청이 실패했습니다. 다시 시도 해주세요. 계속해서 문제가 발생한다면 관리자에게 문의해주십시오.";
+
     /**
      * HTTP Method 잘못된 경우 발생하는 Exception
      * @param ex HttpRequestMethodNotSupportedException
@@ -29,7 +31,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Result> handleMethodNotSupportException(HttpRequestMethodNotSupportedException ex) {
         String message = ex.getMessage();
-        log.warn(message);
+        log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
 
@@ -41,9 +43,10 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(PredictableRuntimeException.class)
     public ResponseEntity<Result> handleCustomException(PredictableRuntimeException ex) {
         String message = ex.getMessage();
-        log.warn(message);
+        log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
+
 
     /**
      * Valid 어노테이션에서 검증에 실패할 경우 발생하는 Exception
@@ -54,7 +57,7 @@ public class ControllerExceptionHandler {
     public ResponseEntity<Result> handleValidationException(MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
         String message = fieldError != null ? fieldError.getDefaultMessage() : "검증 실패";
-        log.warn(message);
+        log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
 
@@ -66,7 +69,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<Result> handleHeaderException(MissingRequestHeaderException ex) {
         String message = ex.getMessage();
-        log.warn(message);
+        log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
 
@@ -78,7 +81,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Result> handleNotReadableException(HttpMessageNotReadableException ex) {
         String message = ex.getMessage();
-        log.warn(message);
+        log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
 
@@ -90,8 +93,8 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result> handleException(Exception ex) {
         String message = ex.getMessage();
-        log.error(message);
-        return ResponseEntity.internalServerError().body(new ErrorResult(message));
+        log.error(message, ex);
+        return ResponseEntity.internalServerError().body(new ErrorResult(FAIL_MSG));
     }
 
 }
