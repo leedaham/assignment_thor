@@ -40,7 +40,8 @@
 - size 최소, 최대값 확인
 
 ##### Service
-- pathName 이름 확인
+- pathName 중복 확인
+- pathName 부모 확인
 - size 남은 공간 확인
 
 ### 디렉토리 이름 변경 API
