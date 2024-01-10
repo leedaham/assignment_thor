@@ -1,13 +1,13 @@
 package me.hamtom.thor.directory.domain.rename;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.domain.common.response.Result;
 import me.hamtom.thor.directory.domain.common.response.SuccessResult;
 import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
+import me.hamtom.thor.directory.domain.rename.dto.RenameDirectoryDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +20,8 @@ import static me.hamtom.thor.directory.domain.common.validate.ValidatorHelper.st
 @RestController
 @RequiredArgsConstructor
 public class RenameController {
+
+    private final RenameService renameService;
 
     @PostMapping("/directory/rename")
     public ResponseEntity<Result> renameDirectory(
@@ -34,6 +36,7 @@ public class RenameController {
         RenameDirectoryDto renameDirectoryDto = renameDirReq.createRenameDirectoryDto(mergeOnDuplicateOptionValue);
 
         //디렉토리 rename 및 결과
+        renameService.renameDirectory(renameDirectoryDto);
 
         return ResponseEntity.ok(new SuccessResult(null));
     }
@@ -48,11 +51,5 @@ public class RenameController {
         }
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class RenameDirectoryDto {
-        private String oldPathName;
-        private String newName;
-        private OptionValue mergeOnDuplicate;
-    }
+
 }
