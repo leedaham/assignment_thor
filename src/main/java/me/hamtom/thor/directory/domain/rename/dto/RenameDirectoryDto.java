@@ -9,5 +9,6 @@ import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
 public class RenameDirectoryDto {
     private String oldPathName;
     private String newName;
+    private OptionValue renameWithChild;
     private OptionValue mergeOnDuplicate;
 }
