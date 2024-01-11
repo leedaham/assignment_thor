@@ -2,7 +2,8 @@ package me.hamtom.thor.directory.domain.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.domain.common.directory.dto.DirectoryPathInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.dto.ChildDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.dto.PathDetailDto;
 import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
 import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
 import me.hamtom.thor.directory.domain.common.directory.repository.DirectoryRepository;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -20,16 +22,87 @@ import java.util.List;
 public class DirectoryService {
     private final DirectoryRepository directoryRepository;
 
-    public Directory saveDirectory(Directory directory) {
-        return directoryRepository.save(directory);
+    /**
+     * 디렉토리 저장
+     * @param pathName
+     * @param owner
+     * @param group
+     * @param permissions
+     * @param size
+     * @return 저장 디렉토리 pathName
+     */
+    @Transactional
+    public String saveDirectory(String pathName, String owner, String group, String permissions, int size) {
+        Directory directory = Directory.createDirectory(pathName, owner, group, permissions, size);
+        return directoryRepository.save(directory).getPathName();
     }
 
+    /**
+     * 여러 디렉토리 저장
+     * @param pathNames
+     * @param owner
+     * @param group
+     * @param permissions
+     * @param size
+     * @return 저장 디렉토리 pathName list
+     */
+    @Transactional
+    public List<String> saveDirectories(List<String> pathNames, String owner, String group, String permissions, int size) {
+        List<String> saveDirectories = new ArrayList<>();
+        for (String pathName : pathNames) {
+            Directory directory = Directory.createDirectory(pathName, owner, group, permissions, size);
+            Directory save = directoryRepository.save(directory);
+            saveDirectories.add(save.getPathName());
+        }
+        return saveDirectories;
+    }
+
+    /**
+     * 디렉토리 이름 변경
+     * @param newPathName
+     * @param oldPathName
+     * @return update count
+     */
+    @Transactional
+    public int renameDirectory(String newPathName, String oldPathName) {
+        return (int) directoryRepository.renameDirectory(newPathName, oldPathName);
+    }
+
+    /**
+     * 여러 디렉토리 이름 변경
+     * @param renameList
+     * @return update count
+     */
+    @Transactional
+    public int renameDirectoies(Map<String, String> renameList) {
+        int count = 0;
+        for (Map.Entry<String, String> entry : renameList.entrySet()) {
+            count += directoryRepository.renameDirectory(entry.getKey(), entry.getValue());
+        }
+        return count;
+    }
+
+    @Transactional
+    public void deleteDirectory(String pathName) {
+        directoryRepository.deleteByPathName(pathName);
+    }
+
+    /**
+     * 디렉토리 존재 확인
+     * @param pathName
+     * @return 존재 여부
+     */
     public boolean isDirectoryExist(String pathName) {
         int count = directoryRepository.countByPathName(pathName);
         return (count > 0);
     }
 
-    public DirectoryPathInfoDto getDirectoryPathInfo(String pathName) {
+    /**
+     * 디렉토리 경로 정보
+     * @param pathName
+     * @return 디렉토리 경로 구체적 정보 (디렉토리 경로, 디렉토리 layer, 디렉토리 이름, 경로)
+     */
+    public PathDetailDto getPathDetail(String pathName) {
         int layerCount = getLayerNum(pathName);
         int lastSlashIndex = pathName.lastIndexOf('/');
 
@@ -46,7 +119,7 @@ public class DirectoryService {
                 .skip(1) // 첫 번째 빈 문자열을 제거
                 .toList();
 
-        return new DirectoryPathInfoDto(pathName, layerCount, dirName, layers);
+        return new PathDetailDto(pathName, layerCount, dirName, layers);
     }
 
     /**
@@ -54,7 +127,7 @@ public class DirectoryService {
      * @param layers 디렉토리 계층 정보
      * @return MissingParentInfoDto - 누락된 부모 디렉토리 정보
      */
-    public ParentDirectoriesInfoDto getParentDirectoriesInfo(String childDirectory, List<String> layers) {
+    public ParentDirectoriesInfoDto getParentDirectoriesInfo(String pathName, List<String> layers) {
         List<String> missingDirectories = new ArrayList<>();
         List<String> existingDirectories = new ArrayList<>();
         List<String> orphanedDirectories = new ArrayList<>();
@@ -90,19 +163,7 @@ public class DirectoryService {
             existingDirectories.removeAll(orphanedDirectories);
         }
 
-        return new ParentDirectoriesInfoDto(childDirectory, missingDirectories, existingDirectories, orphanedDirectories);
-    }
-
-    @Transactional
-    public void removeOrphanedDirectory(List<String> orphanedDirectories) {
-        if (orphanedDirectories.isEmpty()) {
-            return;
-        }
-
-        for (String orphanedDirectory : orphanedDirectories) {
-            directoryRepository.deleteByPathName(orphanedDirectory);
-            log.info("고아 디렉토리 삭제, path: {}", orphanedDirectory);
-        }
+        return new ParentDirectoriesInfoDto(pathName, missingDirectories, existingDirectories, orphanedDirectories);
     }
 
     public int getUsedCapacity() {
@@ -114,6 +175,12 @@ public class DirectoryService {
         }
     }
 
+    public ChildDirectoriesInfoDto getChildDirectoriesInfo(String oldPathName) {
+        List<String> childDirectoriesPathName = directoryRepository.getChildDirectoriesPathName(oldPathName);
+        childDirectoriesPathName.remove(oldPathName);
+
+        return new ChildDirectoriesInfoDto(oldPathName, childDirectoriesPathName);
+    }
     private int getLayerNum(String pathName) {
         return (int) pathName.chars().filter(c -> c == '/').count();
     }

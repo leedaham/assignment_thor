@@ -3,7 +3,8 @@ package me.hamtom.thor.directory.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import me.hamtom.thor.directory.domain.common.DirectoryService;
-import me.hamtom.thor.directory.domain.common.directory.dto.DirectoryPathInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.dto.ChildDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.common.directory.dto.PathDetailDto;
 import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
 import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
 import me.hamtom.thor.directory.domain.common.directory.repository.DirectoryRepository;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,9 +64,9 @@ class DirectoryServiceTest {
             "/abc/sde, 2, sde",
             "/abc, 1, abc"
     })
-    void getDirectoryPathInfo( String pathName, int layerCount, String dirName ){
+    void getPathDetail( String pathName, int layerCount, String dirName ){
         //when
-        DirectoryPathInfoDto directoryPathInfo = directoryService.getDirectoryPathInfo(pathName);
+        PathDetailDto directoryPathInfo = directoryService.getPathDetail(pathName);
 //        System.out.println(directoryPathInfo.toString());
 
         //then
@@ -105,45 +107,38 @@ class DirectoryServiceTest {
         ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName, layers);
 
         //then
-        assertThat(parentDirectoriesInfoDto.getChildDirectory()).isEqualTo(pathName);
+        assertThat(parentDirectoriesInfoDto.getPathName()).isEqualTo(pathName);
         assertThat(parentDirectoriesInfoDto.getMissingDirectories()).contains("/aaa/bbb/ccc");
         assertThat(parentDirectoriesInfoDto.getExistingDirectories()).contains("/aaa", "/aaa/bbb");
         assertThat(parentDirectoriesInfoDto.getOrphanedDirectories()).contains("/aaa/bbb/ccc/ddd");
     }
 
-    @DisplayName("고아 디렉토리 삭제하기")
+    @DisplayName("자식 디렉토리 정보 구하기")
     @Test
-    void removeOrphanedDirectory(){
+    void getChildDirectoriesInfo(){
         //given
-        String parentPathName1 = "/aaa";
-        String parentPathName2 = "/aaa/bbb";
-        String orphanedPathName = "/aaa/bbb/ccc/ddd";
+        String pathName = "/aaa";
+        String childPathName1 = "/aaa/bbb/ccc";
+        String childPathName2 = "/aaa/bbb/ccc/ddd";
+        String childPathName3 = "/aaa/bbb/vvv/";
+        String childPathName4 = "/aaa/bbb/vvv/ddd";
+        String childPathName5 = "/aaa/bbb/vvv/ddd/eee";
         String owner = "root";
         String group = "rootGroup";
         String permissions = "rwxrwxrwx";
         int size = 100;
 
         //when
-        Directory parentDirectory1 = Directory.createDirectory(parentPathName1, owner, group, permissions, size);
-        Directory parentDirectory2 = Directory.createDirectory(parentPathName2, owner, group, permissions, size);
-        Directory orphanedDirectory = Directory.createDirectory(orphanedPathName, owner, group, permissions, size);
-        directoryRepository.save(parentDirectory1);
-        directoryRepository.save(parentDirectory2);
-        directoryRepository.save(orphanedDirectory);
+        List<String> childPathNames = Arrays.asList(pathName, childPathName1, childPathName2, childPathName3, childPathName4, childPathName5);
+        for (String childPathName : childPathNames) {
+            Directory childDirectory = Directory.createDirectory(childPathName, owner, group, permissions, size);
+            directoryRepository.save(childDirectory);
+        }
 
-        String pathName = "/aaa/bbb/ccc/ddd/eee";
-        List<String> layers = new ArrayList<>();
-        layers.add("aaa");
-        layers.add("bbb");
-        layers.add("ccc");
-        layers.add("ddd");
-        layers.add("eee");
-
-        ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName, layers);
-        directoryService.removeOrphanedDirectory(parentDirectoriesInfoDto.getOrphanedDirectories());
-        int countByPathName = directoryRepository.countByPathName(pathName);
+        ChildDirectoriesInfoDto childDirectoriesInfo = directoryService.getChildDirectoriesInfo(pathName);
+        System.out.println("childDirectoriesInfo = " + childDirectoriesInfo);
 
         //then
-        assertThat(countByPathName).isZero();
     }
+
 }
