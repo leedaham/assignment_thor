@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ParentDirectoriesInfoDto {
-    private String childDirectory;
+    private String pathName;
     private List<String> missingDirectories;
     private List<String> existingDirectories;
     private List<String> orphanedDirectories;
