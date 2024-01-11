@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DirectoryPathInfoDto {
+public class PathDetailDto {
     String pathName;
     private int layerCount;
     private String dirName;
