@@ -9,19 +9,17 @@ public class ValidatorHelper {
     public static final String NO_BLANK_REG = "^(?!.*\\\\s).*$";
 
     public static OptionValue strToOptionValue(String valueName, String value) {
-        // null 확인
-        if (value == null) {
+        // null 혹은 f,F -> FALSE
+        // t,T -> TRUE
+        if (value == null || value.equalsIgnoreCase("F")) {
             // null
-            return OptionValue.NO_VALUE;
-        }
-        // T, F 확인
-        if (value.equalsIgnoreCase("T")) {
-            return OptionValue.TRUE;
-        } else if (value.equalsIgnoreCase("F")) {
             return OptionValue.FALSE;
-        } else{
-            String exceptionMsg = String.format("%s 값은 T, F만 가능합니다.", valueName);
-            throw new PredictableRuntimeException(exceptionMsg);
+        } else if (value.equalsIgnoreCase("T")) {
+            return OptionValue.TRUE;
         }
+
+        //예외
+        String exceptionMsg = String.format("%s 값은 T, F만 가능합니다.", valueName);
+        throw new PredictableRuntimeException(exceptionMsg);
     }
 }
