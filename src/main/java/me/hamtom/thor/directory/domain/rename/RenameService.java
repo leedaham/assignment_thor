@@ -31,8 +31,9 @@ public class RenameService {
         OptionValue renameWithChild = renameDirectoryDto.getRenameWithChild();
         OptionValue mergeOnDuplicate = renameDirectoryDto.getMergeOnDuplicate();
 
-        //oldPath 존재 확인
-        checkOldPathNameExist(oldPathName);
+        //TODO: 여기서 디렉토리 가져오고, 만약 단일 변경이면 더티체킹으로 하면 될 듯?
+        //oldPath 존재 확인. 존재 X -> 실패 응답
+        directoryService.checkExistPathName(oldPathName);
 
         //oldPath 자식 디렉토리 정보 가져오기
         ChildDirectoriesInfoDto oldPathChildDirectoriesInfoDto = directoryService.getChildDirectoriesInfo(oldPathName);
@@ -71,7 +72,7 @@ public class RenameService {
         }
 
         //rename
-        directoryService.renameDirectoies(renameMap);
+        directoryService.updateDirectoriesPathName(renameMap);
 
         List<String> renamedDirectories = renameMap.keySet().stream().toList();
         return new RenameDirectoryResultDto(renameType, oldPathName, newPathName, renamedDirectories, newPathChildDirectories);
@@ -90,8 +91,7 @@ public class RenameService {
 
     private String generateNewPathName(String oldPathName, String newName) {
         int lastIndexOf = oldPathName.lastIndexOf('/');
-        String newPathName = oldPathName.substring(0, lastIndexOf + 1) + newName;
-        return newPathName;
+        return oldPathName.substring(0, lastIndexOf + 1) + newName;
     }
 
     private void ifChildExist(OptionValue renameWithChild, List<String> oldPathChildDirectories) {
@@ -102,6 +102,7 @@ public class RenameService {
         }
     }
 
+    //TODO directoryExist 어쩔티비
     private boolean checkDuplicateNewPathForMerge(OptionValue mergeOnDuplicate, String newPathName) {
         boolean directoryExist = directoryService.isDirectoryExist(newPathName);
         //존재 -> 옵션 확인
@@ -110,20 +111,12 @@ public class RenameService {
 
             //옵션값 FALSE -> 실패 응답
             if(mergeOnDuplicate.equals(OptionValue.FALSE)){
-                throw new PredictableRuntimeException("변경하고자 하는 이름의 디렉토리가 이미 존재 합니다. 병합히길 원하시는 경우 'mergeOnDuplicate=F' 옵션을 쿼리스트링으로 요청해주십시오.");
+                throw new PredictableRuntimeException("변경하고자 하는 이름의 디렉토리가 이미 존재 합니다. 병합히길 원하시는 경우 'mergeOnDuplicate=T' 옵션을 쿼리스트링으로 요청해주십시오.");
             }
 
             //옵션값 TRUE
             return true;
         }
         return false;
-    }
-
-    private void checkOldPathNameExist(String oldPathName) {
-        boolean directoryExist = directoryService.isDirectoryExist(oldPathName);
-        if (!directoryExist) {
-            throw new PredictableRuntimeException("존재하지 않는 디렉토리입니다.");
-        }
-        log.info("기존 디렉토리 존재. oldPathName: {}", oldPathName);
     }
 }

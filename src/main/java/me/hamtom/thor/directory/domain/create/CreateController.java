@@ -4,10 +4,10 @@ import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryDto;
+import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryCommand;
 import me.hamtom.thor.directory.domain.common.response.Result;
 import me.hamtom.thor.directory.domain.common.response.SuccessResult;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryResultDto;
+import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryResult;
 import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,14 +38,14 @@ public class CreateController {
         OptionValue flexibleCapacityOptionValue = strToOptionValue("flexibleCapacity", flexibleCapacity);
         log.trace("Option parameter 검증 완료");
 
-        //디렉토리 create DTO
-        CreateDirectoryDto createDirectoryDto = createDirReq.convertToCreateDirectoryDto(createMissingParentOptionValue, flexibleCapacityOptionValue);
+        //디렉토리 create command
+        CreateDirectoryCommand command = createDirReq.toCommand(createMissingParentOptionValue, flexibleCapacityOptionValue);
 
         //디렉토리 create 및 결과
-        CreateDirectoryResultDto createDirectoryResult = createService.createDirectory(createDirectoryDto);
-        log.info("생성 응답, body: {}", createDirectoryResult.toString());
+        CreateDirectoryResult result = createService.createDirectory(command);
+        log.info("생성 응답, body: {}", result.toString());
 
-        return ResponseEntity.ok(new SuccessResult(createDirectoryResult));
+        return ResponseEntity.ok(new SuccessResult(result));
     }
 
 
@@ -59,8 +59,8 @@ public class CreateController {
         private String permissions;
         private int size;
 
-        public CreateDirectoryDto convertToCreateDirectoryDto(OptionValue checkedCreateMissingParent, OptionValue flexibleCapacity) {
-            return new CreateDirectoryDto(pathName, owner, group, permissions, size, checkedCreateMissingParent, flexibleCapacity);
+        public CreateDirectoryCommand toCommand(OptionValue checkedCreateMissingParent, OptionValue flexibleCapacity) {
+            return new CreateDirectoryCommand(pathName, owner, group, permissions, size, checkedCreateMissingParent, flexibleCapacity);
         }
     }
 }

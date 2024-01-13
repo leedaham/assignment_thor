@@ -6,7 +6,7 @@ import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
 
 @Data
 @AllArgsConstructor
-public class CreateDirectoryDto {
+public class CreateDirectoryCommand {
     private String pathName;
     private String owner;
     private String group;

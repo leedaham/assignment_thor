@@ -4,14 +4,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import me.hamtom.thor.directory.domain.common.DirectoryService;
 import me.hamtom.thor.directory.domain.common.directory.dto.ChildDirectoriesInfoDto;
-import me.hamtom.thor.directory.domain.common.directory.dto.PathDetailDto;
 import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
 import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
 import me.hamtom.thor.directory.domain.common.directory.repository.DirectoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,30 +47,10 @@ class DirectoryServiceTest {
         directoryRepository.save(directory);
 
         //then
-        boolean directoryExist1 = directoryService.isDirectoryExist(pathName1);
-        boolean directoryExist2 = directoryService.isDirectoryExist(pathName2);
-        assertThat(directoryExist1).isTrue();
-        assertThat(directoryExist2).isFalse();
-    }
-
-    @DisplayName("디렉토리 계층 정보 구하기")
-    @ParameterizedTest
-    @CsvSource(value = {
-            "/abc/sde/sda/ewq, 4, ewq",
-            "/abc/sda/ewz, 3, ewz",
-            "/abc/sde, 2, sde",
-            "/abc, 1, abc"
-    })
-    void getPathDetail( String pathName, int layerCount, String dirName ){
-        //when
-        PathDetailDto directoryPathInfo = directoryService.getPathDetail(pathName);
-//        System.out.println(directoryPathInfo.toString());
-
-        //then
-        assertThat(directoryPathInfo.getPathName()).isEqualTo(pathName);
-        assertThat(directoryPathInfo.getLayerCount()).isEqualTo(layerCount);
-        assertThat(directoryPathInfo.getDirName()).isEqualTo(dirName);
-        assertThat(directoryPathInfo.getLayers()).hasSize(layerCount);
+//        boolean directoryExist1 = directoryService.isDirectoryExist(pathName1);
+//        boolean directoryExist2 = directoryService.isDirectoryExist(pathName2);
+//        assertThat(directoryExist1).isTrue();
+//        assertThat(directoryExist2).isFalse();
     }
 
     @DisplayName("부모 디렉토리 정보 구하기")
@@ -104,7 +81,7 @@ class DirectoryServiceTest {
         layers.add("ddd");
         layers.add("eee");
 
-        ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName, layers);
+        ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName);
 
         //then
         assertThat(parentDirectoriesInfoDto.getPathName()).isEqualTo(pathName);

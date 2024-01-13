@@ -2,6 +2,7 @@ package me.hamtom.thor.directory.domain.common.directory.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,6 +13,15 @@ import static me.hamtom.thor.directory.domain.common.directory.entity.QDirectory
 @RequiredArgsConstructor
 public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom {
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public boolean isExist(String pathName) {
+        Directory fetchFirst = queryFactory
+                .selectFrom(directory)
+                .where(directory.pathName.eq(pathName))
+                .fetchFirst();
+        return fetchFirst != null;
+    }
 
     @Override
     public Integer getAllUsedCapacity() {
@@ -36,6 +46,14 @@ public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom {
                 .update(directory)
                 .set(directory.pathName, newPathName)
                 .where(directory.pathName.eq(oldPathName))
+                .execute();
+    }
+
+    @Override
+    public long deleteDirectoryWithChild(String pathName) {
+        return queryFactory
+                .delete(directory)
+                .where(directory.pathName.startsWith(pathName))
                 .execute();
     }
 }

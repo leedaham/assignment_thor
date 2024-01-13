@@ -13,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 /**
  * 예외 발생 처리
@@ -54,9 +55,16 @@ public class ControllerExceptionHandler {
      * @return 실패 응답 (HttpStatus.BAD_REQUEST)
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Result> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Result> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
         String message = fieldError != null ? fieldError.getDefaultMessage() : "검증 실패";
+        log.warn(message, ex);
+        return ResponseEntity.badRequest().body(new FailResult(message));
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<Result> handlerMethodValidationException(HandlerMethodValidationException ex) {
+        String message = ex.getMessage();
         log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }

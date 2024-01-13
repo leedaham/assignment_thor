@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CreateDirectoryResultDto {
+public class CreateDirectoryResult {
     private String createdDirectory;
     private List<String> createdParentDirectories;
     private int size;

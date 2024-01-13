@@ -3,9 +3,8 @@ package me.hamtom.thor.directory.domain.create;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.domain.common.DirectoryService;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryDto;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryResultDto;
-import me.hamtom.thor.directory.domain.common.directory.dto.PathDetailDto;
+import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryCommand;
+import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryResult;
 import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
 import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
 import me.hamtom.thor.directory.domain.common.exception.PredictableRuntimeException;
@@ -28,59 +27,48 @@ public class CreateService {
 
     private final DirectoryService directoryService;
 
-    public CreateDirectoryResultDto createDirectory(CreateDirectoryDto createDirectoryDto) {
-        //create 정보 가져오기
-        String pathName = createDirectoryDto.getPathName();
-        String owner = createDirectoryDto.getOwner();
-        String group = createDirectoryDto.getGroup();
-        String permissions = createDirectoryDto.getPermissions();
-        int size = createDirectoryDto.getSize();
-        OptionValue createMissingParent = createDirectoryDto.getCreateMissingParent();
-        OptionValue flexibleCapacity = createDirectoryDto.getFlexibleCapacity();
+    public CreateDirectoryResult createDirectory(CreateDirectoryCommand command) {
+        //create command 가져오기
+        String pathName = command.getPathName();
+        String owner = command.getOwner();
+        String group = command.getGroup();
+        String permissions = command.getPermissions();
+        int size = command.getSize();
+        OptionValue createMissingParent = command.getCreateMissingParent();
+        OptionValue flexibleCapacity = command.getFlexibleCapacity();
 
-        //Directory 중복 확인
-        checkDuplicatePath(pathName);
+        //Directory 중복 확인. 중복 -> 실패 응답
+        directoryService.checkAvailablePathName(pathName);
 
-        //상위 디렉토리 확인 - Directory path 정보 만들기
-        PathDetailDto pathDetailDto = directoryService.getPathDetail(pathName);
-
-        //상위 디렉토리 누락 정보 확인
-        List<String> layers = pathDetailDto.getLayers();
-        ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName, layers);
-
-        //부모 디렉터리 누락 -> 부모 디렉토리 생성 옵션값 확인 후 생성
+        //부모 디렉토리 확인
+        ParentDirectoriesInfoDto parentDirectoriesInfoDto = directoryService.getParentDirectoriesInfo(pathName);
         List<String> missingDirectories = parentDirectoriesInfoDto.getMissingDirectories();
-        ifMissingParentExist(createMissingParent, missingDirectories);
 
-        //디렉토리 남은 용량 확인
+        //부모 디렉터리 누락일 경우 옵션값 확인
+        boolean isCreateWithParent = ifMissingParentExist(createMissingParent, missingDirectories);
+
+        //디렉토리 남은 용량 확인, 없을 경우 실패, 부족할 경우 옵션값 확인
         size = checkAvailableCapacityForSize(size, flexibleCapacity, missingDirectories);
 
         //부모 디렉토리 create
         List<String> createdParentDirectories = new ArrayList<>();
-        if (!missingDirectories.isEmpty()) {
+        if (isCreateWithParent) {
             List<String> saveDirectoriesPathName = directoryService.saveDirectories(missingDirectories, owner, group, permissions, size);
             createdParentDirectories = saveDirectoriesPathName;
             log.info("부모 디렉토리 생성. pathName: {}", saveDirectoriesPathName);
         }
 
-
         //디렉토리 create
         String saveDirectoryPathName = directoryService.saveDirectory(pathName, owner, group, permissions, size);
         log.info("디렉토리 생성. pathName: {}", saveDirectoryPathName);
 
-        return new CreateDirectoryResultDto(saveDirectoryPathName, createdParentDirectories, size);
+        return new CreateDirectoryResult(saveDirectoryPathName, createdParentDirectories, size);
     }
 
-    private void checkDuplicatePath(String pathName) {
-        boolean directoryExist = directoryService.isDirectoryExist(pathName);
-        //Directory 중복 -> 실패 응답
-        if(directoryExist){
-            throw new PredictableRuntimeException("이미 존재하는 디렉토리 입니다.");
-        }
-        log.info("중복 없음. pathName: {}", pathName);
-    }
 
-    private void ifMissingParentExist(OptionValue createMissingParent, List<String> missingDirectories) {
+
+    private boolean ifMissingParentExist(OptionValue createMissingParent, List<String> missingDirectories) {
+        boolean isCreateWithParent = false;
         if (!missingDirectories.isEmpty()) {
             log.info("부모 디렉토리 없음. missingDirectories:{}", missingDirectories);
 
@@ -93,23 +81,26 @@ public class CreateService {
             if (missingDirectories.size() >= createParentsLimit) {
                 throw new PredictableRuntimeException(createParentsLimit+"개를 초과하는 부모 디렉토리가 생성이 필요합니다. 부모 디렉토리를 먼저 생성해주십시오.");
             }
+            isCreateWithParent = true;
         }
+        return isCreateWithParent;
     }
 
     private int checkAvailableCapacityForSize(int size, OptionValue flexibleCapacity, List<String> missingDirectories) {
         int usedCapacity = directoryService.getUsedCapacity();
         int availableCapacity = totalCapacity - usedCapacity;
+
+        //남은 용량 없는 경우
         if (availableCapacity <= 0) {
             log.info("가용 용량 없음. totalCapacity: {}, usedCapacity: {}, availableCapacity: {}", totalCapacity, usedCapacity, availableCapacity);
             throw new PredictableRuntimeException("가용 용량이 없습니다.");
         }
 
-        //생성할 용량과 남은 용량 확인
+        //남은 용량 충분한지 확인
         int numDirectoriesToCreate = missingDirectories.size() + 1;
 
-        //남은 용량 부족시
+        //남은 용량 부족
         if (availableCapacity < (numDirectoriesToCreate * size)) {
-
             //flexibleCapacity 확인. FALSE -> 실패 응답
             if (flexibleCapacity.equals(OptionValue.FALSE)) {
                 log.info("가용 용량 부족. availableCapacity: {}, numDirectoriesToCreate: {}, size {}", availableCapacity, numDirectoriesToCreate, size);
@@ -131,6 +122,7 @@ public class CreateService {
                 size = allocatedCapacity;
             }
         }
+
         return size;
     }
 
