@@ -2,12 +2,11 @@ package me.hamtom.thor.directory.domain.create;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.domain.common.validate.OptionValid;
-import me.hamtom.thor.directory.domain.common.validate.PathValid;
-import me.hamtom.thor.directory.domain.common.validate.ValidatorHelper;
+import me.hamtom.thor.directory.domain.common.validate.*;
 import me.hamtom.thor.directory.domain.create.dto.CreateCommand;
 import me.hamtom.thor.directory.domain.common.response.Result;
 import me.hamtom.thor.directory.domain.common.response.SuccessResult;
@@ -51,17 +50,21 @@ public class CreateController {
 
 
     @Data
+    @AllArgsConstructor
     static class CreateDirReq {
         @PathValid
         @NotBlank(message = "pathName은 필수 값입니다.")
         private String pathName;
+        @OwnerGroupValid
         @NotBlank(message = "owner는 필수 값입니다.")
         private String owner;
+        @OwnerGroupValid
         @NotBlank(message = "group은 필수 값입니다.")
         private String group;
+        @PermissionsValid
         @NotBlank(message = "permissions는 필수 값입니다.")
         private String permissions;
-        @NotBlank(message = "size는 필수 값입니다.")
+        @SizeValid
         private int size;
 
         public CreateCommand toCreateCommand(boolean isCreateMissingParent, boolean isFlexibleCapacity) {

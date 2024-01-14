@@ -1,6 +1,8 @@
 package me.hamtom.thor.directory.domain.migrate;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,10 +52,13 @@ public class RenameController {
 
 
     @Data
+    @AllArgsConstructor
     static class RenameDirReq {
         @PathValid
+        @NotBlank(message = "oldPathName은 필수 값입니다.")
         private String oldPathName;
         @DirNameValid
+        @NotBlank(message = "newName은 필수 값입니다.")
         private String newName;
 
         public MigrateCommand toMigrateCommand(String toMigratePath, boolean isMergeOnDuplicate) {

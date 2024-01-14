@@ -1,6 +1,8 @@
 package me.hamtom.thor.directory.domain.migrate;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +51,13 @@ public class MoveController {
 
 
     @Data
+    @AllArgsConstructor
     static class MoveDirReq {
         @PathValid
+        @NotBlank(message = "sourcePath은 필수 값입니다.")
         private String sourcePath;
         @PathValid
+        @NotBlank(message = "targetPath은 필수 값입니다.")
         private String targetPath;
 
         public MigrateCommand toMigrateCommand(String toMigratePath, boolean isMergeOnDuplicate) {
