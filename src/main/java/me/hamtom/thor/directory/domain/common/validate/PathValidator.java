@@ -26,7 +26,6 @@ public class PathValidator implements ConstraintValidator<PathValid, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
-
         // Null 확인, Null 처리는 Controller, Req 객체에서
         if (value == null || value.isBlank()){
             return true;
@@ -41,8 +40,8 @@ public class PathValidator implements ConstraintValidator<PathValid, String> {
         // 최소, 최대 길이 확인 (root 제외, '/')
         int length = value.length();
         if ((length < pathNameMinSize || length > pathNameMaxSize) && !value.equals("/")) {
-            String nameMinMaxMsg = String.format(minMaxMsg, pathNameMinSize, pathNameMaxSize);
-            customMessageForValidation(context, nameMinMaxMsg);
+            minMaxMsg = String.format(minMaxMsg, pathNameMinSize, pathNameMaxSize);
+            customMessageForValidation(context, minMaxMsg);
             return false;
         }
 
@@ -56,7 +55,7 @@ public class PathValidator implements ConstraintValidator<PathValid, String> {
             customMessageForValidation(context, notEndWithMsg);
             return false;
         }
-        // 숫자,알파벳,'_','-', '/' 허용
+        // 숫자,알파벳,'_','-', '/' 허용, ('/' 연속 사용 제한)
         if (!Pattern.matches(ValidatorHelper.PATH_NAME_REG, value)) {
             customMessageForValidation(context, regMsg);
             return false;

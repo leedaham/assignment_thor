@@ -6,17 +6,15 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.regex.Pattern;
 
-public class OwnerGroupValidator implements ConstraintValidator<OwnerGroupValid, String> {
+public class PermissionsValidator implements ConstraintValidator<PermissionsValid, String> {
 
-    @Value("${config.request.validator.owner-group-name.min}")
-    private int ownerGroupNameMinSize;
-    @Value("${config.request.validator.owner-group-name.max}")
-    private int ownerGroupNameMaxSize;
-    @Value("${config.request.validator.owner-group-name.message.no-blank}")
+    @Value("${config.request.validator.permissions.length}")
+    private int permissionsLength;
+    @Value("${config.request.validator.permissions.message.no-blank}")
     private String noBlankMsg;
-    @Value("${config.request.validator.owner-group-name.message.min-max}")
-    private String minMaxMsg;
-    @Value("${config.request.validator.owner-group-name.message.pattern-reg}")
+    @Value("${config.request.validator.permissions.message.length}")
+    private String lengthMsg;
+    @Value("${config.request.validator.permissions.message.pattern-reg}")
     private String regMsg;
 
 
@@ -37,14 +35,14 @@ public class OwnerGroupValidator implements ConstraintValidator<OwnerGroupValid,
 
         // 최소, 최대 길이 확인
         int length = value.length();
-        if (length < ownerGroupNameMinSize || length > ownerGroupNameMaxSize) {
-            minMaxMsg = String.format(minMaxMsg, ownerGroupNameMinSize, ownerGroupNameMaxSize);
-            customMessageForValidation(context, minMaxMsg);
+        if (length != permissionsLength) {
+            lengthMsg = String.format(lengthMsg, permissionsLength);
+            customMessageForValidation(context, lengthMsg);
             return false;
         }
 
-        // 숫자,알파벳 허용
-        if (!Pattern.matches(ValidatorHelper.OWNER_GROUP_NAME_REG, value)) {
+        // 권한 형태만 허용 (rwxrwxrwx)
+        if (!Pattern.matches(ValidatorHelper.PERMISSIONS_REG, value)) {
             customMessageForValidation(context, regMsg);
             return false;
         }
