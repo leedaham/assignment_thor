@@ -24,11 +24,6 @@ public class DirectoryService {
 
     /**
      * 디렉토리 저장
-     * @param pathName
-     * @param owner
-     * @param group
-     * @param permissions
-     * @param size
      * @return 저장 디렉토리 pathName
      */
     @Transactional
@@ -39,11 +34,6 @@ public class DirectoryService {
 
     /**
      * 여러 디렉토리 저장
-     * @param pathNames
-     * @param owner
-     * @param group
-     * @param permissions
-     * @param size
      * @return 저장 디렉토리 pathName list
      */
     @Transactional
@@ -59,8 +49,6 @@ public class DirectoryService {
 
     /**
      * 여러 디렉토리 pathName 변경
-     * @param migrationMap
-     * @return update count
      */
     @Transactional
     public void updateDirectoriesPathName(Map<String, String> migrationMap) {
@@ -69,11 +57,17 @@ public class DirectoryService {
         }
     }
 
+    /**
+     * 디렉토리 삭제
+     */
     @Transactional
     public void deleteDirectory(String pathName) {
         directoryRepository.deleteByPathName(pathName);
     }
 
+    /**
+     * 디렉토리 삭제 (자식 디렉토리 함께 삭제)
+     */
     @Transactional
     public void deleteDirectoryWithChild(String pathName) {
         directoryRepository.deleteDirectoryWithChild(pathName);
@@ -81,13 +75,15 @@ public class DirectoryService {
 
     /**
      * 디렉토리 존재 확인
-     * @param pathName
      * @return 존재 여부
      */
     public boolean isDirectoryExist(String pathName) {
         return directoryRepository.isExist(pathName);
     }
 
+    /**
+     * 디렉토리 경로가 비어있는지 확인
+     */
     public void checkAvailablePathName(String pathName){
         boolean directoryExist = directoryRepository.isExist(pathName);
         if (directoryExist) {
@@ -95,6 +91,10 @@ public class DirectoryService {
             throw new PredictableRuntimeException(msg);
         }
     }
+
+    /**
+     * 디렉토리 경로가 사용중인지 확인
+     */
     public void checkExistPathName(String pathName){
         boolean directoryExist = directoryRepository.isExist(pathName);
         if (!directoryExist) {
@@ -105,7 +105,6 @@ public class DirectoryService {
 
     /**
      * 디렉토리 검색
-     * @param pathName
      * @return 디렉토리
      */
     public Directory checkExistAndGetDirectory(String pathName) {
@@ -119,7 +118,6 @@ public class DirectoryService {
 
     /**
      * 부모 디렉토리 정보 확인
-     * @param pathName 디렉토리 경로 정보
      * @return ParentDirectoriesInfoDto - 부모 디렉토리 정보
      */
     public ParentDirectoriesInfoDto getParentDirectoriesInfo(String pathName) {
@@ -153,7 +151,6 @@ public class DirectoryService {
 
     /**
      * 자식 디렉토리 정보 확인
-     * @param pathName
      * @return ChildDirectoriesInfoDto - 자식 디렉토리 정보
      */
     public ChildDirectoriesInfoDto getChildDirectoriesInfo(String pathName) {
@@ -185,6 +182,10 @@ public class DirectoryService {
         return (int) pathName.chars().filter(c -> c == '/').count();
     }
 
+    /**
+     * 경로가 root 경로인지 확인
+     * @return root 경로 여부
+     */
     public boolean isRootPath(String path) {
         return path.equals("/");
     }

@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 부모 디렉토리 중 누락된 디렉토리 확인
+ * 자식 디렉토리 정보 확인
  */
 @Data
 @AllArgsConstructor

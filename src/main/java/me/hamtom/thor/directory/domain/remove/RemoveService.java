@@ -15,11 +15,16 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RemoveService {
 
     private final DirectoryService directoryService;
 
-    @Transactional
+    /**
+     * 디렉토리 삭제 메서드
+     * @return 디렉토리 삭제 결과
+     */
+
     public RemoveDirectoryResult removeDirectory(RemoveCommand command) {
         String pathName = command.getPathName();
         boolean isRemoveWithChild = command.isRemoveWithChild();
@@ -34,6 +39,8 @@ public class RemoveService {
         //자식과 함께 삭제 확인
         boolean isDeleteWithChild = checkDeleteWithChild(isRemoveWithChild, childDirectories);
 
+        log.info("디렉토리 삭제. pathName: {}", pathName);
+
         //디렉토리 지우기
         if (isDeleteWithChild) {
             directoryService.deleteDirectoryWithChild(pathName);
@@ -44,6 +51,10 @@ public class RemoveService {
         return new RemoveDirectoryResult(pathName, childDirectories);
     }
 
+    /**
+     * 자식 디렉토리가 있는지 확인하고 옵션 따라 계속 진행 혹은 예외 처리(ExceptionHandler -> 실패 응답)
+     * @return 자식 디렉토리 함께 지울지 여부
+     */
     private boolean checkDeleteWithChild(boolean isRemoveWithChild, List<String> childDirectories) {
         boolean isDeleteWithChild = false;
         if (!childDirectories.isEmpty()) {

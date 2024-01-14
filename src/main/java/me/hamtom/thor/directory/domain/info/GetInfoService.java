@@ -16,11 +16,16 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GetInfoService {
 
     private final DirectoryService directoryService;
 
-    @Transactional(readOnly = true)
+    /**
+     * 디렉토리 조회 메서드
+     * @return 디렉토리 조회 결과
+     */
+
     public GetInfoResult getDirectoryInfo(GetInfoCommand command) {
         String pathName = command.getPathName();
 
@@ -28,6 +33,7 @@ public class GetInfoService {
 
         //검색 디렉토리 존재 확인, 가져오기. 존재 X -> 실패 응답
         Directory directory = directoryService.checkExistAndGetDirectory(pathName);
+        log.info("디렉토리 조회. pathName: {}", pathName);
 
         String formattedCreated = localDateTimeToStr(directory.getCreated());
         String formattedModified = localDateTimeToStr(directory.getModified());
@@ -42,6 +48,9 @@ public class GetInfoService {
         );
     }
 
+    /**
+     * 조회 경로가 root 경우 예외 처리(ExceptionHandler -> 실패 응답)
+     */
     private void ifRootPath(String pathName) {
         boolean isRootPath = directoryService.isRootPath(pathName);
         if (isRootPath) {
@@ -49,6 +58,10 @@ public class GetInfoService {
         }
     }
 
+    /**
+     * 조회한 디렉토리의 created, modified 정보 포맷 변경
+     * @return 변경된 created, modified 정보
+     */
     private String localDateTimeToStr(LocalDateTime localDateTime) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         return localDateTime.format(dateTimeFormatter);

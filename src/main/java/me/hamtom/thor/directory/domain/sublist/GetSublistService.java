@@ -14,11 +14,15 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GetSublistService {
 
     private final DirectoryService directoryService;
 
-    @Transactional(readOnly = true)
+    /**
+     * 디렉토리 서브리스트 조회 메소드
+     * @return 디렉토리 서브리스트
+     */
     public GetSublistResult getSublist(GetSublistCommand command) {
         String pathName = command.getPathName();
 
@@ -26,6 +30,7 @@ public class GetSublistService {
         if (!pathName.equals("/")) {
             directoryService.checkExistPathName(pathName);
         }
+        log.info("서브리스트 조회. pathName: {}", pathName);
 
         // 검색 디렉토리 자식 디렉토리 정보
         ChildDirectoriesInfoDto childDirectoriesInfo = directoryService.getChildDirectoriesInfo(pathName);
@@ -38,9 +43,12 @@ public class GetSublistService {
             map.computeIfAbsent(layerNum, v -> new ArrayList<>()).add(childDirectory);
         }
 
-        //TODO: 이해가 안됨..
         return convertMapToSublist(map, pathName);
     }
+
+    /**
+     * 자식 디렉토리를 순회하면서 서브리스트 추가
+     */
     private GetSublistResult convertMapToSublist(Map<Integer, List<String>> map, String rootName) {
         GetSublistResult root = new GetSublistResult(rootName);
 
@@ -56,11 +64,12 @@ public class GetSublistService {
         return root;
     }
 
+    /**
+     * 디렉토리 경로를 /로 분리하여 각각 자식 디렉토리 확인 및 생성/추가
+     */
     private void insertSubDirectory(GetSublistResult root, String subDirectory, int depth) {
         GetSublistResult current = root;
 
-
-        // 디렉토리 경로를 /로 분리하여 각 레벨에 따라 Sublist 객체를 생성하고 삽입
         String[] parts = subDirectory.split("/");
         for (int i = 1; i <= depth; i++) {
             String path = "/";
@@ -75,6 +84,9 @@ public class GetSublistService {
         }
     }
 
+    /**
+     * 확인하는 디렉토리가 자식 디렉토리인지 확인 및 생성/추가
+     */
     private GetSublistResult findOrCreateChild(GetSublistResult parent, String name) {
         String parentName = parent.getName();
         if (parentName.equals(name)) {

@@ -64,24 +64,16 @@ public class ControllerExceptionHandler {
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
 
+    /**
+     * CustomValid 어노테이션에서 검증에 실패할 경우 발생하는 Exception
+     * @param ex HandlerMethodValidationException
+     * @return 실패 응답 (HttpStatus.BAD_REQUEST)
+     */
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<Result> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
-//        String message = ex.getMessage();
         List<ParameterValidationResult> allValidationResults = ex.getAllValidationResults();
         ParameterValidationResult parameterValidationResult = allValidationResults.get(0);
         String message = parameterValidationResult.getResolvableErrors().get(0).getDefaultMessage();
-        log.warn(message, ex);
-        return ResponseEntity.badRequest().body(new FailResult(message));
-    }
-
-    /**
-     * RequestHeader 어노테이션에서 발생하는 Exception
-     * @param ex MissingRequestHeaderException
-     * @return 실패 응답 (HttpStatus.BAD_REQUEST)
-     */
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<Result> handleMissingRequestHeaderException(MissingRequestHeaderException ex) {
-        String message = ex.getMessage();
         log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
@@ -97,6 +89,12 @@ public class ControllerExceptionHandler {
         log.warn(message, ex);
         return ResponseEntity.badRequest().body(new FailResult(message));
     }
+
+    /**
+     * 없는 경로 요청시 발생하는 Exception
+     * @param ex NoResourceFoundException
+     * @return 실패 응답 (HttpStatus.BAD_REQUEST)
+     */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Result> handleNoResourceFoundException(NoResourceFoundException ex) {
         String message = ex.getMessage();

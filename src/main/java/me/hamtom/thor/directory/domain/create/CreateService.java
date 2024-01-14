@@ -26,6 +26,10 @@ public class CreateService {
 
     private final DirectoryService directoryService;
 
+    /**
+     * 디렉토리 생성 메서드
+     * @return 디렉토리 생성 결과
+     */
     public CreateResult createDirectory(CreateCommand command) {
         //create command 가져오기
         String pathName = command.getPathName();
@@ -68,6 +72,9 @@ public class CreateService {
         return new CreateResult(saveDirectoryPathName, createdParentDirectories, size);
     }
 
+    /**
+     * 생성 경로가 root 경우 예외 처리(ExceptionHandler -> 실패 응답)
+     */
     private void ifRootPath(String pathName) {
         boolean isRootPath = directoryService.isRootPath(pathName);
         if (isRootPath) {
@@ -76,6 +83,10 @@ public class CreateService {
     }
 
 
+    /**
+     * 부모 디렉터리 누락 경우, 옵션/정책에 따라 계속 진행 혹은 예외 처리(ExceptionHandler -> 실패 응답)
+     * @return 부모 디렉터리와 함께 생성 진행 여부
+     */
     private boolean ifMissingParentExist(boolean isCreateMissingParent, ParentDirectoriesInfoDto parentDirectoriesInfoDto) {
         boolean isCreateWithParent = false;
         if (parentDirectoriesInfoDto.hasMissingParent()) {
@@ -96,6 +107,10 @@ public class CreateService {
         return isCreateWithParent;
     }
 
+    /**
+     * 총 용량, 남은 용량, 사용 용량에 따라 계속 진행 혹은 예외 처리(ExceptionHandler -> 실패 응답)
+     * @return 디렉토리 생성 크기
+     */
     private int checkAvailableCapacityForSize(int size, boolean isFlexibleCapacity, int toCreateNum) {
         int usedCapacity = directoryService.getUsedCapacity();
         int availableCapacity = totalCapacity - usedCapacity;
