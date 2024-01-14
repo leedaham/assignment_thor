@@ -1,18 +1,51 @@
 config:
     capacity: 10000
+    policy:
+        create-parents:
+            limit: 100
+
     request:
         validator:
-            dir-name:
-                min: 1
-                max: 255
+
             path-name:
                 min: 2
                 max: 4096
+                message:
+                    no-blank: 디렉토리 경로는 [빈 칸]을 포함할 수 없습니다.
+                    min-max: 디렉토리 경로는 [%d ~ %d 자리] 문자열입니다. ('/' root 제외)
+                    pattern-start-with: 디렉토리 경로는 ['/'(경로 변수시, %2F)]로 시작하여야 합니다.
+                    pattern-not-end-with: 디렉토리 경로는 ['/'(경로 변수시, %2F)]로 끝날 수 없습니다. ('/' root 제외)
+                    pattern-reg: 디렉토리 경로는 [숫자, 알파벳, '-', '_', '/'(경로 변수시, %2F)] 만 허용합니다. ('/' 연속 사용 제한)
+
+            dir-name:
+                min: 1
+                max: 255
+                message:
+                    no-blank: 디렉토리 이름은 [빈 칸]을 포함할 수 없습니다.
+                    min-max: 디렉토리 이름은 [%d ~ %d 자리] 문자열입니다.
+                    pattern-reg: 디렉토리 이름은 [숫자, 알파벳, '-', '_']만 허용합니다.
+
             owner-group-name:
                 min: 1
-                max: 100
+                max: 50
+                message:
+                    no-blank: 소유자, 그룹은 [빈 칸]을 포함할 수 없습니다.
+                    min-max: 소유자, 그룹은 [%d ~ %d 자리] 문자열입니다.
+                    pattern-reg: 소유자, 그룹은 [숫자, 알파벳]만 허용합니다.
+
+            permissions:
+                length: 9
+                message:
+                    no-blank: 권한은 [빈 칸]을 포함할 수 없습니다.
+                    length: 권한의 길이는 [%d 자리]입니다.
+                    pattern-reg: 권한은 [UNIX, LINUX 권한 표기]를 따릅니다. (r, w, x, '-'로 이루어집니다.)
             size:
                 min: 1
-                max: 100
-        create-parents:
-            limit: 10
+                max: 200
+                message:
+                    min-max: 파일 크기 범위는 [%d ~ %d] 입니다.
+
+            option-query-string:
+                message: 옵션 쿼리스트링은 ['true', 'false']만 허용합니다.
+
+
