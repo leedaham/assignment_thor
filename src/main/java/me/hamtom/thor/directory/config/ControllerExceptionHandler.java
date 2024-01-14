@@ -26,8 +26,6 @@ import java.util.List;
 @RestControllerAdvice
 public class ControllerExceptionHandler {
 
-    public static final String FAIL_MSG = "요청이 실패했습니다. 다시 시도 해주세요. 계속해서 문제가 발생한다면 관리자에게 문의해주십시오.";
-
     /**
      * 직접 정의한 Exception, 예상 가능한 예외 처리에 사용
      * @param ex 직접 정의한 Exception
@@ -103,7 +101,7 @@ public class ControllerExceptionHandler {
     public ResponseEntity<Result> handleNoResourceFoundException(NoResourceFoundException ex) {
         String message = ex.getMessage();
         log.warn(message, ex);
-        return ResponseEntity.badRequest().body(new FailResult(message));
+        return ResponseEntity.badRequest().body(new FailResult("존재하지 않는 경로입니다. (경로 변수 사용시 '/' -> '%2F')"));
     }
 
         /**
@@ -115,7 +113,7 @@ public class ControllerExceptionHandler {
     public ResponseEntity<Result> handleException(Exception ex) {
         String message = ex.getMessage();
         log.error(message, ex);
-        return ResponseEntity.internalServerError().body(new ErrorResult(FAIL_MSG));
+        return ResponseEntity.internalServerError().body(new ErrorResult("요청이 실패했습니다. 다시 시도 해주세요. 계속해서 문제가 발생한다면 관리자에게 문의해주십시오."));
     }
 
 }
