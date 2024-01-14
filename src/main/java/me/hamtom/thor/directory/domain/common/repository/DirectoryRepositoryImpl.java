@@ -1,13 +1,13 @@
-package me.hamtom.thor.directory.domain.common.directory.repository;
+package me.hamtom.thor.directory.domain.common.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
+import me.hamtom.thor.directory.domain.common.entity.Directory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static me.hamtom.thor.directory.domain.common.directory.entity.QDirectory.directory;
+import static me.hamtom.thor.directory.domain.common.entity.QDirectory.directory;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class DirectoryRepositoryImpl implements DirectoryRepositoryCustom {
     }
 
     @Override
-    public long renameDirectory(String newPathName, String oldPathName) {
+    public long updateDirectoryPathName(String newPathName, String oldPathName) {
         return queryFactory
                 .update(directory)
                 .set(directory.pathName, newPathName)

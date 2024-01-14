@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.domain.common.directory.entity;
+package me.hamtom.thor.directory.domain.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

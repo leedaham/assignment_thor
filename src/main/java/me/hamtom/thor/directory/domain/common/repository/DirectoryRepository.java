@@ -1,6 +1,6 @@
-package me.hamtom.thor.directory.domain.common.directory.repository;
+package me.hamtom.thor.directory.domain.common.repository;
 
-import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
+import me.hamtom.thor.directory.domain.common.entity.Directory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

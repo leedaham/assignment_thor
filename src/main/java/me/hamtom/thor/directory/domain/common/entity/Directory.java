@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.domain.common.directory.entity;
+package me.hamtom.thor.directory.domain.common.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -29,6 +29,10 @@ public class Directory extends BaseTime{
 
     @Column(nullable = false)
     private int size;
+
+    public void changePathName(String pathName) {
+        this.pathName = pathName;
+    }
 
     public static Directory createDirectory(String pathName, String owner, String group, String permissions, int size) {
         Directory directory = new Directory();

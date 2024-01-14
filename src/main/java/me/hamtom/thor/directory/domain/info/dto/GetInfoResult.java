@@ -1,11 +1,11 @@
-package me.hamtom.thor.directory.domain.getInfo.dto;
+package me.hamtom.thor.directory.domain.info.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GetDirectoryInfoResultDto {
+public class GetInfoResult {
     private String pathName;
     private String owner;
     private String group;

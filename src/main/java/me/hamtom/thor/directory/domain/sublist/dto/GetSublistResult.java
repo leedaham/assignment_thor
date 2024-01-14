@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.domain.getSublist.dto;
+package me.hamtom.thor.directory.domain.sublist.dto;
 
 import lombok.Data;
 

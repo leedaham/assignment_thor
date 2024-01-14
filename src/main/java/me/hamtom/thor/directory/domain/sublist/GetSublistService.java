@@ -1,11 +1,11 @@
-package me.hamtom.thor.directory.domain.getSublist;
+package me.hamtom.thor.directory.domain.sublist;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.domain.common.DirectoryService;
-import me.hamtom.thor.directory.domain.common.directory.dto.ChildDirectoriesInfoDto;
-import me.hamtom.thor.directory.domain.getSublist.dto.GetSublistCommand;
-import me.hamtom.thor.directory.domain.getSublist.dto.GetSublistResult;
+import me.hamtom.thor.directory.domain.common.dto.ChildDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.sublist.dto.GetSublistCommand;
+import me.hamtom.thor.directory.domain.sublist.dto.GetSublistResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

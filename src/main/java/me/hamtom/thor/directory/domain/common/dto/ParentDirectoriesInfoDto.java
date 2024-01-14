@@ -1,4 +1,4 @@
-package me.hamtom.thor.directory.domain.common.directory.dto;
+package me.hamtom.thor.directory.domain.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,5 +14,12 @@ public class ParentDirectoriesInfoDto {
     private String pathName;
     private List<String> missingDirectories;
     private List<String> existingDirectories;
-    private List<String> orphanedDirectories;
+
+    public boolean hasMissingParent() {
+        return !missingDirectories.isEmpty();
+    }
+
+    public int countMissingParent() {
+        return missingDirectories.size();
+    }
 }
