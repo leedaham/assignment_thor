@@ -2,10 +2,10 @@ package me.hamtom.thor.directory.domain.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.domain.common.directory.dto.ChildDirectoriesInfoDto;
-import me.hamtom.thor.directory.domain.common.directory.dto.ParentDirectoriesInfoDto;
-import me.hamtom.thor.directory.domain.common.directory.entity.Directory;
-import me.hamtom.thor.directory.domain.common.directory.repository.DirectoryRepository;
+import me.hamtom.thor.directory.domain.common.dto.ChildDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.common.dto.ParentDirectoriesInfoDto;
+import me.hamtom.thor.directory.domain.common.entity.Directory;
+import me.hamtom.thor.directory.domain.common.repository.DirectoryRepository;
 import me.hamtom.thor.directory.domain.common.exception.PredictableRuntimeException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,13 +59,13 @@ public class DirectoryService {
 
     /**
      * 여러 디렉토리 pathName 변경
-     * @param renameMap
+     * @param migrationMap
      * @return update count
      */
     @Transactional
-    public void updateDirectoriesPathName(Map<String, String> renameMap) {
-        for (Map.Entry<String, String> entry : renameMap.entrySet()) {
-            directoryRepository.renameDirectory(entry.getKey(), entry.getValue());
+    public void updateDirectoriesPathName(Map<String, String> migrationMap) {
+        for (Map.Entry<String, String> entry : migrationMap.entrySet()) {
+            directoryRepository.updateDirectoryPathName(entry.getKey(), entry.getValue());
         }
     }
 
@@ -91,13 +91,15 @@ public class DirectoryService {
     public void checkAvailablePathName(String pathName){
         boolean directoryExist = directoryRepository.isExist(pathName);
         if (directoryExist) {
-            throw new PredictableRuntimeException("이미 존재하는 경로입니다.");
+            String msg = String.format("이미 존재하는 경로입니다. 경로: %s", pathName);
+            throw new PredictableRuntimeException(msg);
         }
     }
     public void checkExistPathName(String pathName){
         boolean directoryExist = directoryRepository.isExist(pathName);
         if (!directoryExist) {
-            throw new PredictableRuntimeException("존재하지 않는 경로입니다.");
+            String msg = String.format("존재하지 않는 경로입니다. 경로: %s", pathName);
+            throw new PredictableRuntimeException(msg);
         }
     }
 
@@ -109,26 +111,20 @@ public class DirectoryService {
     public Directory checkExistAndGetDirectory(String pathName) {
         Optional<Directory> byPathName = directoryRepository.findByPathName(pathName);
         if (byPathName.isEmpty()) {
-            throw new PredictableRuntimeException("존재하지 않는 경로입니다.");
+            String msg = String.format("존재하지 않는 경로입니다. 경로: %s", pathName);
+            throw new PredictableRuntimeException(msg);
         }
         return byPathName.get();
     }
 
     /**
-     * 디렉토리 경로 정보
-     * @param pathName
-     * @return 디렉토리 경로 구체적 정보 (디렉토리 경로, 디렉토리 layer, 디렉토리 이름, 경로)
-     */
-
-    /**
      * 부모 디렉토리 정보 확인
-     * @param layers 디렉토리 계층 정보
+     * @param pathName 디렉토리 경로 정보
      * @return ParentDirectoriesInfoDto - 부모 디렉토리 정보
      */
     public ParentDirectoriesInfoDto getParentDirectoriesInfo(String pathName) {
         List<String> existingDirectories = new ArrayList<>();
         List<String> missingDirectories = new ArrayList<>();
-        List<String> orphanedDirectories = new ArrayList<>();
 
         // 부모 디렉토리 경로 구하기
         List<String> parentPathList = new ArrayList<>();
@@ -152,14 +148,7 @@ public class DirectoryService {
             }
         }
 
-        // 고아 디렉토리 유무 확인
-        if (!missingDirectories.isEmpty()) {
-            int firstMissingLayerNum = getLayerNum(missingDirectories.get(0));
-            orphanedDirectories = existingDirectories.stream().filter(d -> getLayerNum(d) > firstMissingLayerNum).toList();
-            existingDirectories.removeAll(orphanedDirectories);
-        }
-
-        return new ParentDirectoriesInfoDto(pathName, missingDirectories, existingDirectories, orphanedDirectories);
+        return new ParentDirectoriesInfoDto(pathName, missingDirectories, existingDirectories);
     }
 
     /**
@@ -194,5 +183,9 @@ public class DirectoryService {
      */
     public int getLayerNum(String pathName) {
         return (int) pathName.chars().filter(c -> c == '/').count();
+    }
+
+    public boolean isRootPath(String path) {
+        return path.equals("/");
     }
 }

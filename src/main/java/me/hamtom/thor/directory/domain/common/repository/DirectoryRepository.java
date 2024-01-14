@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface DirectoryRepository extends JpaRepository<Directory, Long> , DirectoryRepositoryCustom {
     Optional<Directory> findByPathName(String pathName);
-    int countByPathName(String pathName);
     void deleteByPathName(String pathName);
 }
