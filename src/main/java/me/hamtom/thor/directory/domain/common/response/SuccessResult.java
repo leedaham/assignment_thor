@@ -1,12 +1,14 @@
 package me.hamtom.thor.directory.domain.common.response;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 /**
  * 성공 응답 객체
  */
 @Data
+@NoArgsConstructor
 public class SuccessResult implements Result{
     private HttpStatus httpStatus = HttpStatus.OK;
     private String message = "요청이 성공적으로 처리되었습니다.";
