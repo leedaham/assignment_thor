@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PathValidator.class)
-public @interface PathValid {
+@Constraint(validatedBy = OptionValidator.class)
+public @interface OptionValid {
     String message() default "";
 
     Class<?>[] groups() default {};

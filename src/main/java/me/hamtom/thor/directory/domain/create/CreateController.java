@@ -1,66 +1,71 @@
 package me.hamtom.thor.directory.domain.create;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryCommand;
+import me.hamtom.thor.directory.domain.common.validate.OptionValid;
+import me.hamtom.thor.directory.domain.common.validate.PathValid;
+import me.hamtom.thor.directory.domain.common.validate.ValidatorHelper;
+import me.hamtom.thor.directory.domain.create.dto.CreateCommand;
 import me.hamtom.thor.directory.domain.common.response.Result;
 import me.hamtom.thor.directory.domain.common.response.SuccessResult;
-import me.hamtom.thor.directory.domain.create.dto.CreateDirectoryResult;
-import me.hamtom.thor.directory.domain.common.enumerated.OptionValue;
+import me.hamtom.thor.directory.domain.create.dto.CreateResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static me.hamtom.thor.directory.domain.common.validate.ValidatorHelper.strToOptionValue;
+import static me.hamtom.thor.directory.domain.common.validate.ValidatorHelper.optionToBoolean;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class CreateController {
 
-    private final CreateService createService;
-
+    private final CreateService service;
 
     @PostMapping("/directory/create")
     public ResponseEntity<Result> createDirectory(
             @RequestBody @Valid CreateDirReq createDirReq,
-            @RequestParam(required = false) String createMissingParent,
-            @RequestParam(required = false) String flexibleCapacity
+            @RequestParam(required = false) @OptionValid String createMissingParent,
+            @RequestParam(required = false) @OptionValid String flexibleCapacity
     ) {
-        log.info("생성 요청, createMissingParent: {}, flexibleCapacity: {}, body: {}", createMissingParent, flexibleCapacity, createDirReq.toString());
+        log.info("디렉토리 생성 요청, createMissingParent: {}, flexibleCapacity: {}, body: {}", createMissingParent, flexibleCapacity, createDirReq.toString());
 
-        //Option parameter 검증
-        OptionValue createMissingParentOptionValue = strToOptionValue("createMissingParent", createMissingParent);
-        OptionValue flexibleCapacityOptionValue = strToOptionValue("flexibleCapacity", flexibleCapacity);
-        log.trace("Option parameter 검증 완료");
+        //option to boolean
+        boolean isCreateMissingParent = optionToBoolean(createMissingParent);
+        boolean isFlexibleCapacity = optionToBoolean(flexibleCapacity);
 
-        //디렉토리 create command
-        CreateDirectoryCommand command = createDirReq.toCommand(createMissingParentOptionValue, flexibleCapacityOptionValue);
+        //req to CreateCommand
+        CreateCommand command = createDirReq.toCreateCommand(isCreateMissingParent, isFlexibleCapacity);
 
         //디렉토리 create 및 결과
-        CreateDirectoryResult result = createService.createDirectory(command);
-        log.info("생성 응답, body: {}", result.toString());
+        CreateResult result = service.createDirectory(command);
+        log.info("디렉토리 생성 응답, body: {}", result.toString());
 
         return ResponseEntity.ok(new SuccessResult(result));
     }
 
 
-    //TODO
-    //check validation
     @Data
     static class CreateDirReq {
+        @PathValid
+        @NotBlank(message = "pathName은 필수 값입니다.")
         private String pathName;
+        @NotBlank(message = "owner는 필수 값입니다.")
         private String owner;
+        @NotBlank(message = "group은 필수 값입니다.")
         private String group;
+        @NotBlank(message = "permissions는 필수 값입니다.")
         private String permissions;
+        @NotBlank(message = "size는 필수 값입니다.")
         private int size;
 
-        public CreateDirectoryCommand toCommand(OptionValue checkedCreateMissingParent, OptionValue flexibleCapacity) {
-            return new CreateDirectoryCommand(pathName, owner, group, permissions, size, checkedCreateMissingParent, flexibleCapacity);
+        public CreateCommand toCreateCommand(boolean isCreateMissingParent, boolean isFlexibleCapacity) {
+            return new CreateCommand(pathName, owner, group, permissions, size, isCreateMissingParent, isFlexibleCapacity);
         }
     }
 }
