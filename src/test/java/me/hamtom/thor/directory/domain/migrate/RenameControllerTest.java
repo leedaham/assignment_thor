@@ -59,8 +59,6 @@ class RenameControllerTest {
         String oldPathName = "/abc/old";
         String newName = "new";
         RenameController.RenameDirReq renameDirReq = new RenameController.RenameDirReq(oldPathName, newName);
-        String mergeOnDuplicate = "false";
-
 
         //when
         createService.createDirectory(new CreateCommand(oldPathName, owner, group, permissions, size, true, true));

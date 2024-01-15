@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hamtom.thor.directory.domain.common.DirectoryService;
 import me.hamtom.thor.directory.domain.common.entity.Directory;
-import me.hamtom.thor.directory.domain.common.exception.PredictableRuntimeException;
 import me.hamtom.thor.directory.domain.info.dto.GetInfoCommand;
 import me.hamtom.thor.directory.domain.info.dto.GetInfoResult;
 import org.springframework.stereotype.Service;
