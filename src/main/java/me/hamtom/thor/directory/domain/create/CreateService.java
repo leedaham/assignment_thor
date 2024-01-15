@@ -41,7 +41,7 @@ public class CreateService {
         boolean isFlexibleCapacity = command.isFlexibleCapacity();
 
         //루트 패스 확인
-        ifRootPath(pathName);
+        directoryService.throwExceptionIfRootPath(pathName);
 
         //Directory 중복 확인. 중복 -> 실패 응답
         directoryService.checkAvailablePathName(pathName);
@@ -70,16 +70,6 @@ public class CreateService {
         log.info("디렉토리 생성. pathName: {}", saveDirectoryPathName);
 
         return new CreateResult(saveDirectoryPathName, createdParentDirectories, size);
-    }
-
-    /**
-     * 생성 경로가 root 경우 예외 처리(ExceptionHandler -> 실패 응답)
-     */
-    private void ifRootPath(String pathName) {
-        boolean isRootPath = directoryService.isRootPath(pathName);
-        if (isRootPath) {
-            throw new PredictableRuntimeException("root 경로(/)입니다. 생성할 수 없습니다.");
-        }
     }
 
 

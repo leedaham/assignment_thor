@@ -189,4 +189,14 @@ public class DirectoryService {
     public boolean isRootPath(String path) {
         return path.equals("/");
     }
+
+    /**
+     * 생성/삭제/조회 경로가 root 경우 예외 처리(ExceptionHandler -> 실패 응답)
+     */
+    public void throwExceptionIfRootPath(String pathName) {
+        boolean isRootPath = isRootPath(pathName);
+        if (isRootPath) {
+            throw new PredictableRuntimeException("root 경로(/)입니다. [생성/삭제/조회]할 수 없습니다.");
+        }
+    }
 }
