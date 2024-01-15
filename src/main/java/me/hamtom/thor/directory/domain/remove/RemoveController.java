@@ -7,7 +7,7 @@ import me.hamtom.thor.directory.domain.common.response.SuccessResult;
 import me.hamtom.thor.directory.domain.common.validate.OptionValid;
 import me.hamtom.thor.directory.domain.common.validate.PathValid;
 import me.hamtom.thor.directory.domain.remove.dto.RemoveCommand;
-import me.hamtom.thor.directory.domain.remove.dto.RemoveDirectoryResult;
+import me.hamtom.thor.directory.domain.remove.dto.RemoveResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +38,7 @@ public class RemoveController {
         RemoveCommand command = toRemoveCommand(pathName, isRemoveWithChild);
 
         //remove result
-        RemoveDirectoryResult result = removeService.removeDirectory(command);
+        RemoveResult result = removeService.removeDirectory(command);
         log.info("디렉토리 제거 응답, body: {}", result.toString());
 
         return ResponseEntity.ok(new SuccessResult(result));

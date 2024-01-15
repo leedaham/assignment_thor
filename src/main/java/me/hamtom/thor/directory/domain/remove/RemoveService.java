@@ -6,7 +6,7 @@ import me.hamtom.thor.directory.domain.common.DirectoryService;
 import me.hamtom.thor.directory.domain.common.dto.ChildDirectoriesInfoDto;
 import me.hamtom.thor.directory.domain.common.exception.PredictableRuntimeException;
 import me.hamtom.thor.directory.domain.remove.dto.RemoveCommand;
-import me.hamtom.thor.directory.domain.remove.dto.RemoveDirectoryResult;
+import me.hamtom.thor.directory.domain.remove.dto.RemoveResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +25,11 @@ public class RemoveService {
      * @return 디렉토리 삭제 결과
      */
 
-    public RemoveDirectoryResult removeDirectory(RemoveCommand command) {
+    public RemoveResult removeDirectory(RemoveCommand command) {
         String pathName = command.getPathName();
         boolean isRemoveWithChild = command.isRemoveWithChild();
+
+        ifRootPath(pathName);
 
         //디렉토리 경로 존재 확인. 존재 X -> 실패 응답
         directoryService.checkExistPathName(pathName);
@@ -48,7 +50,14 @@ public class RemoveService {
             directoryService.deleteDirectory(pathName);
         }
 
-        return new RemoveDirectoryResult(pathName, childDirectories);
+        return new RemoveResult(pathName, childDirectories);
+    }
+
+    private void ifRootPath(String pathName) {
+        boolean isRootPath = directoryService.isRootPath(pathName);
+        if (isRootPath) {
+            throw new PredictableRuntimeException("root 경로(/)입니다. 삭제할 수 없습니다.");
+        }
     }
 
     /**
